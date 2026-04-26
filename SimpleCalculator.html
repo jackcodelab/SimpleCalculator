@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>calculator</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        .box {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+        }
+
+        .box .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+            width: 200px;
+            min-height: 300px;
+        }
+
+        #result {
+            width: 100%;
+            height: 40px;
+            text-align: right;
+            padding: 5px;
+            font-size: 18px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            color: #222;
+            font-size: 35px;
+            overflow-x: auto;
+            white-space: nowrap;
+            scrollbar-width: none;
+        }
+
+        .messagePopup {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            padding: 15px 25px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: dashed 1px #ccc;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+
+        .btn {
+            height: 50px;
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            background-color: #f0f0f0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        .btn:active {
+            background-color: #d0d0d0;
+        }
+
+
+        .btn-clear {
+            background-color: #ff4d4d;
+            color: #fff;
+        }
+
+        .btn-clear:hover {
+            background-color: #ff1a1a;
+        }
+
+        .btn-clear:active {
+            background-color: #e60000;
+        }
+
+        .btn-calculate {
+            grid-column: span 4;
+            background-color: #4CAF50;
+            color: #fff;
+        }
+
+        .btn-calculate:hover {
+            background-color: #45a049;
+        }
+
+        .btn-calculate:active {
+            background-color: #3e8e41;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+
+<div class="calculator">
+
+    <div style="position: relative; width: 100%;">
+        <input type="text" id="result" disabled value="123456789012345678901234567890" />
+        <input type="button" value=">" id="srclRight" 
+               style="position: absolute; right: -50px; top: 50%; transform: translateY(-50%); height: 30px; cursor: pointer;"/>
+    </div>
+
+    <div class="buttons">
+    
+        <button class="btn" onclick="appendToResult('7')">7</button>
+        <button class="btn" onclick="appendToResult('8')">8</button>
+        <button class="btn" onclick="appendToResult('9')">9</button>
+        <button class="btn" onclick="appendToResult('/')">/</button>
+
+        <button class="btn" onclick="appendToResult('4')">4</button>
+        <button class="btn" onclick="appendToResult('5')">5</button>
+        <button class="btn" onclick="appendToResult('6')">6</button>
+        <button class="btn" onclick="appendToResult('*')">*</button>
+
+        <button class="btn" onclick="appendToResult('1')">1</button>
+        <button class="btn" onclick="appendToResult('2')">2</button>
+        <button class="btn" onclick="appendToResult('3')">3</button>
+        <button class="btn" onclick="appendToResult('-')">-</button>
+
+        <button class="btn" onclick="appendToResult('0')">0</button>
+        <button class="btn" onclick="appendToResult('.')">.</button>
+        <button class="btn btn-clear" onclick="clearResult()">C</button>
+        <button class="btn" onclick="appendToResult('+')">+</button>
+
+        <button class="btn btn-calculate" onclick="calculateResult()">=</button>
+    </div>
+</div>
+<div class="messagePopup">
+    <span> Welcome To My Caluculator!</span>
+</div>
+</div>
+<script>
+    function appendToResult(value) {
+        const res = document.getElementById('result');
+        if(res.value === "Write Expression Here") res.value = "";
+        res.value += value;
+    }
+    
+    function clearResult() {
+        document.getElementById('result').value = '';
+        document.getElementById('srclRight').value = '>'; // Reset button too
+    }
+
+    function calculateResult() {
+        const resInput = document.getElementById('result');
+        if (resInput.value === '') {
+            document.querySelector('.messagePopup span').textContent = 'Please enter a valid expression';
+            document.querySelector('.messagePopup span').style.display = 'block';
+            return;
+        }
+        try {
+            const result = eval(resInput.value);
+            resInput.value = result;
+        } catch(e) {
+            resInput.value = "Error";
+        }
+    }
+
+    document.getElementById('srclRight').addEventListener('click', function () {
+        const scrollInput = document.getElementById('result');
+        const btn = this;
+
+        const maxScroll = scrollInput.scrollWidth - scrollInput.clientWidth;
+        const isAtEnd = scrollInput.scrollLeft >= maxScroll - 10;
+
+        if (isAtEnd) {
+            scrollInput.scrollTo({ left: 0, behavior: 'smooth' });
+            btn.value = '>'; // Use .value for <input type="button">
+        } else {
+            scrollInput.scrollBy({ left: 100, behavior: 'smooth' });
+
+            // Look ahead to see if the next click should be a reset
+            setTimeout(() => {
+                if (scrollInput.scrollLeft + 50 >= maxScroll - 10) {
+                    btn.value = '↺'; 
+                }
+            }, 200);
+        }
+    });
+</script>
+
+</body>
+
+</html>
